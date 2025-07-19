@@ -100,7 +100,7 @@ def repeater(all,flu,llu,llb):
 while True:
     if any(len(lst) == 0 for lst in atlas_dict.values()):
 		print("You Win")
-        break  # Or return, depending on your setup
+        break  
     repeater(all,llu,llb,flu)# Continue doing your trigger action
     
 
