@@ -150,7 +150,7 @@ def repeater(alol, flu, llu, llb, atlas, out):
 start = False
 
 
-# Stop trigger if ANY list in atlas_dict is empty
+# Stop trigger if ANY list in atlas is empty
 while True:
     if any(len(lst) == 0 for lst in atlas.values()):
         print("You Win")
@@ -163,5 +163,4 @@ while True:
     out1 = out
     if out != "placeholder":
         llb = out[-1]
-    # Or return, depending on your setup
     repeater(alol1, llu1, llb1, flu1, atlas1, out1)
