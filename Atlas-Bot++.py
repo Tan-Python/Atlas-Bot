@@ -1,6 +1,14 @@
-# Created on iPad.
-# How long did i take to make this??
-# this mostly uses the UN countries with some others
+import discord
+from discord.ext import commands
+
+# Initialize the bot with a command prefix
+bot = commands.Bot(command_prefix='!', intents=discord.Intents.default())
+
+# Enable necessary intents
+bot.intents.message_content = True
+bot.intents.guilds = True
+bot.intents.members = True
+
 
 a = [
     # Countries
@@ -505,6 +513,8 @@ z = [
     # Continents
 ]
 
+
+# Combine all lists into alol
 alol = []
 alol.extend(a)
 alol.extend(b)
@@ -533,82 +543,71 @@ alol.extend(x)
 alol.extend(y)
 alol.extend(z)
 
+# Create the atlas dictionary
 atlas = {
-    "a": a,
-    "b": b,
-    "c": c,
-    "d": d,
-    "e": e,
-    "f": f,
-    "g": g,
-    "h": h,
-    "i": i,
-    "j": j,
-    "k": k,
-    "l": li,
-    "m": m,
-    "n": n,
-    "o": o,
-    "p": p,
-    "q": q,
-    "r": r,
-    "s": s,
-    "t": t,
-    "u": u,
-    "v": v,
-    "w": w,
-    "x": x,
-    "y": y,
-    "z": z
+    "a": a, "b": b, "c": c, "d": d, "e": e, "f": f, "g": g, "h": h,
+    "i": i, "j": j, "k": k, "l": li, "m": m, "n": n, "o": o, "p": p,
+    "q": q, "r": r, "s": s, "t": t, "u": u, "v": v, "w": w, "x": x,
+    "y": y, "z": z
 }
 
+# Add uppercase keys to atlas
 for key in list(atlas.keys()):
     atlas[key.upper()] = atlas[key]
 
-
+# Global game state variables
 llu = None
 flu = None
 llb = "s"
 out = "placeholder"
 
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user.name}')
 
-def repeater(alol, flu, llu, llb, atlas, out):
-    inp = input("Enter Place: ")
-    llu = inp[-1]
-    flu = inp[0]
+@bot.command(name='place')
+async def place_command(ctx, *, place: str):
+    global alol, llu, llb, flu, atlas, out
+
+    # Use the provided place as input
+    inp = place.strip()
+    llu = inp[-1].lower()
+    flu = inp[0].lower()
+
     if llb is None:
-        llb = "S"
+        llb = "s"
+
     if inp in alol:
-        print("valid place")
+        await ctx.send(f"Valid place: {inp}")
         alol.remove(inp)
         atlas[flu].remove(inp)
+        
         if llu in atlas:
             out = atlas[llu][0]
+            # Ensure the selected place is still available
             if out not in atlas[llu]:
-                out = atlas[llu][1]
-            print(out)
+                try:
+                    out = atlas[llu][1]
+                except IndexError:
+                    await ctx.send("No more places available for this letter!")
+                    return
+            await ctx.send(f"Bot's response: {out}")
             atlas[llu].remove(out)
             alol.remove(out)
-            llb = out[-1]
-            print(llb)
-    return alol, llu, llb, flu, atlas, out
+            llb = out[-1].lower()
+            await ctx.send(f"Next place must start with: {llb.upper()}")
+        else:
+            await ctx.send("No places available for this letter!")
+    else:
+        await ctx.send(f"Invalid place: {inp}")
 
-
-start = False
-
-
-# Stop trigger if ANY list in atlas_dict is empty
-while True:
+    # Check if any list in atlas is empty
     if any(len(lst) == 0 for lst in atlas.values()):
-        print("You Win")
-        break
-    alol1 = alol
-    llu1 = llu
-    llb1 = llb
-    flu1 = flu
-    atlas1 = atlas
-    out1 = out
-    if out != "placeholder":
-        llb = out[-1]
-    # Or return, depending on your setup
-    repeater(alol1, llu1, llb1, flu1, atlas1, out1)
+        await ctx.send("Game Over! You Win!")
+        # Reset game state if desired
+        # alol.extend(a + b + c + ... + z)  # Reset alol
+        # atlas = {...}  # Reset atlas
+        # llu, flu, llb, out = None, None, "s", "placeholder"
+
+# Replace 'YOUR_BOT_TOKEN' with your actual Discord bot token
+bot.run('YOUR_BOT_TOKEN')
